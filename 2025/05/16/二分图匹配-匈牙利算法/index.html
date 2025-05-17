@@ -1,0 +1,189 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>匈牙利算法-二分图最大匹配 | ChiefNing's blogs</title><meta name="author" content="ChiefNing"><meta name="copyright" content="ChiefNing"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="二分图最大匹配-匈牙利算法什么是二分图？ 给出一个场景：在非诚勿扰中每位男生可以选择若干名女生作为心动女生，最后该男生可以在这些心动女生中选择一位作为女朋友带走，节目要求满足最大牵手数量，请问最多有几对能牵手成功？ 如图所示1号男嘉宾的心动女生是1号，2号女嘉宾，2号男嘉宾的心动女嘉宾是3号，3号男嘉宾的心动女生是1，2，3号  由图可以看出来{1，1}，{2，3}，{3，2}是一组可以满足要求的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="匈牙利算法-二分图最大匹配">
+<meta property="og:url" content="https://kaining667.github.io/2025/05/16/%E4%BA%8C%E5%88%86%E5%9B%BE%E5%8C%B9%E9%85%8D-%E5%8C%88%E7%89%99%E5%88%A9%E7%AE%97%E6%B3%95/index.html">
+<meta property="og:site_name" content="ChiefNing&#39;s blogs">
+<meta property="og:description" content="二分图最大匹配-匈牙利算法什么是二分图？ 给出一个场景：在非诚勿扰中每位男生可以选择若干名女生作为心动女生，最后该男生可以在这些心动女生中选择一位作为女朋友带走，节目要求满足最大牵手数量，请问最多有几对能牵手成功？ 如图所示1号男嘉宾的心动女生是1号，2号女嘉宾，2号男嘉宾的心动女嘉宾是3号，3号男嘉宾的心动女生是1，2，3号  由图可以看出来{1，1}，{2，3}，{3，2}是一组可以满足要求的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://kaining667.github.io/img/head.jpg">
+<meta property="article:published_time" content="2025-05-16T14:15:27.418Z">
+<meta property="article:modified_time" content="2025-05-16T14:19:20.793Z">
+<meta property="article:author" content="ChiefNing">
+<meta property="article:tag" content="算法">
+<meta property="article:tag" content="图论">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://kaining667.github.io/img/head.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "匈牙利算法-二分图最大匹配",
+  "url": "https://kaining667.github.io/2025/05/16/%E4%BA%8C%E5%88%86%E5%9B%BE%E5%8C%B9%E9%85%8D-%E5%8C%88%E7%89%99%E5%88%A9%E7%AE%97%E6%B3%95/",
+  "image": "https://kaining667.github.io/img/head.jpg",
+  "datePublished": "2025-05-16T14:15:27.418Z",
+  "dateModified": "2025-05-16T14:19:20.793Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "ChiefNing",
+      "url": "https://kaining667.github.io/"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://kaining667.github.io/2025/05/16/%E4%BA%8C%E5%88%86%E5%9B%BE%E5%8C%B9%E9%85%8D-%E5%8C%88%E7%89%99%E5%88%A9%E7%AE%97%E6%B3%95/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '匈牙利算法-二分图最大匹配',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="web_bg" style="background-image: url(/img/bkg.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/friend_404.gif" data-original="/img/head.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">3</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-graduation-cap"></i><span> 博文</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 生活</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/shuoshuo/"><i class="fa-fw fa fa-comments-o"></i><span> 分享</span></a></li><li><a class="site-page child" href="/photos/"><i class="fa-fw fa fa-camera-retro"></i><span> 相册</span></a></li><li><a class="site-page child" href="/music/"><i class="fa-fw fa fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 影视</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/comment/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于笔者</span></a></div></div></div></div><div class="post type-tags" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">ChiefNing's blogs</span></a><a class="nav-page-title" href="/"><span class="site-name">匈牙利算法-二分图最大匹配</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-graduation-cap"></i><span> 博文</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 生活</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/shuoshuo/"><i class="fa-fw fa fa-comments-o"></i><span> 分享</span></a></li><li><a class="site-page child" href="/photos/"><i class="fa-fw fa fa-camera-retro"></i><span> 相册</span></a></li><li><a class="site-page child" href="/music/"><i class="fa-fw fa fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 影视</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/comment/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于笔者</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">匈牙利算法-二分图最大匹配</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-05-16T14:15:27.418Z" title="发表于 2025-05-16 22:15:27">2025-05-16</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-05-16T14:19:20.793Z" title="更新于 2025-05-16 22:19:20">2025-05-16</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">647</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>2分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="二分图最大匹配-匈牙利算法"><a href="#二分图最大匹配-匈牙利算法" class="headerlink" title="二分图最大匹配-匈牙利算法"></a>二分图最大匹配-匈牙利算法</h1><p>什么是二分图？</p>
+<p>给出一个场景：在非诚勿扰中每位男生可以选择若干名女生作为心动女生，最后该男生可以在这些心动女生中选择一位作为女朋友带走，节目要求满足最大牵手数量，请问最多有几对能牵手成功？</p>
+<p>如图所示1号男嘉宾的心动女生是1号，2号女嘉宾，2号男嘉宾的心动女嘉宾是3号，3号男嘉宾的心动女生是1，2，3号</p>
+<p><img src="/img/friend_404.gif" data-original="E:\hexo_myBolg\public\img\codeimg\eft.png" alt="image-20240719230323176"></p>
+<p>由图可以看出来{1，1}，{2，3}，{3，2}是一组可以满足要求的数量，是3，那么如何计算呢？就运用到了匈牙利算法如下所示：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="type">const</span> <span class="type">int</span> N = <span class="number">510</span>;</span><br><span class="line">vector&lt;<span class="type">int</span>&gt; g[N];<span class="comment">//临界矩阵存边</span></span><br><span class="line"><span class="type">bool</span> is[N];<span class="comment">//用来检查i点是否已经被选择</span></span><br><span class="line"><span class="type">int</span> match[N];<span class="comment">//用来存放选i的节点比如match[2]=1,意思是1号男嘉宾选择了2号女嘉宾</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">bool</span> <span class="title">dfs</span><span class="params">(<span class="type">int</span> u)</span></span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">auto</span> v:g[u])&#123;</span><br><span class="line">        <span class="keyword">if</span>(is[v])<span class="keyword">continue</span>;</span><br><span class="line">        is[v]=<span class="number">1</span>;</span><br><span class="line">        <span class="keyword">if</span>(match[v]==<span class="number">0</span>||<span class="built_in">dfs</span>(match[v]))&#123;<span class="comment">//如果i号女嘉宾没有被男嘉宾选择那么就是0，dfs(match[v])表示选择了v号女嘉宾的男生还有没有别的选择，如果有那么就让出来给v，如果没有那么就不让了</span></span><br><span class="line">            match[v]=u;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="type">int</span> n;</span><br><span class="line">    cin&gt;&gt;n;</span><br><span class="line">    <span class="built_in">memset</span>(match,<span class="number">0</span>,<span class="built_in">sizeof</span>(match));</span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">1</span>;i&lt;=n;i++)&#123;</span><br><span class="line">        <span class="type">int</span> m;</span><br><span class="line">        cin&gt;&gt;m;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> j=<span class="number">1</span>;j&lt;=m;j++)&#123;</span><br><span class="line">            <span class="type">int</span> x;</span><br><span class="line">            cin&gt;&gt;x;</span><br><span class="line">            g[i].<span class="built_in">push_back</span>(x);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="type">int</span> ans=<span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">1</span>;i&lt;=n;i++)&#123;</span><br><span class="line">        <span class="built_in">memset</span>(is,fasle,<span class="built_in">sizeof</span>(<span class="literal">false</span>));<span class="comment">//初始胡match数组</span></span><br><span class="line">        <span class="keyword">if</span>(<span class="built_in">dfs</span>(i))ans++;</span><br><span class="line">    &#125;</span><br><span class="line">    cout&lt;&lt;ans;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>原题连接出处</p>
+<p><a target="_blank" rel="noopener" href="https://ac.nowcoder.com/acm/contest/86639/C">C-有大家喜欢的零食吗_河南萌新联赛2024第（一）场：河南农业大学 (nowcoder.com)</a></p>
+<p>题解：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="meta">#<span class="keyword">define</span> int long long</span></span><br><span class="line"><span class="type">const</span> <span class="type">int</span> N = <span class="number">510</span>;</span><br><span class="line"><span class="type">int</span> match[N];</span><br><span class="line"><span class="type">bool</span> is[N];</span><br><span class="line">vector&lt;<span class="type">int</span>&gt; g[N];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">bool</span> <span class="title">dfs</span><span class="params">(<span class="type">int</span> x)</span></span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">auto</span> y: g[x])&#123;</span><br><span class="line">        <span class="keyword">if</span>(is[y])<span class="keyword">continue</span>;</span><br><span class="line">        is[y]=<span class="number">1</span>;</span><br><span class="line">        <span class="keyword">if</span>(match[y] == <span class="number">0</span> || <span class="built_in">dfs</span>(match[y]))&#123;</span><br><span class="line">            match[y] = x;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">signed</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="type">int</span> n;</span><br><span class="line">    cin &gt;&gt; n;</span><br><span class="line">    <span class="built_in">memset</span>(match, <span class="number">0</span>, <span class="built_in">sizeof</span>(match));</span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">1</span>; i &lt;= n; i++)&#123;</span><br><span class="line">        <span class="type">int</span> x;</span><br><span class="line">        cin &gt;&gt; x;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> j = <span class="number">0</span>; j &lt; x; j++)&#123;</span><br><span class="line">            <span class="type">int</span> y;</span><br><span class="line">            cin &gt;&gt; y;</span><br><span class="line">            g[i].<span class="built_in">push_back</span>(y);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="type">int</span> ans = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">1</span>; i &lt;= n; i++)&#123;</span><br><span class="line">        <span class="built_in">memset</span>(is, <span class="literal">false</span>, <span class="built_in">sizeof</span>(is));</span><br><span class="line">        <span class="keyword">if</span>(<span class="built_in">dfs</span>(i))ans++;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(ans == n)cout &lt;&lt; <span class="string">&quot;Yes&quot;</span>;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;No&quot;</span> &lt;&lt; endl; </span><br><span class="line">        cout &lt;&lt; n - ans;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://kaining667.github.io">ChiefNing</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://kaining667.github.io/2025/05/16/%E4%BA%8C%E5%88%86%E5%9B%BE%E5%8C%B9%E9%85%8D-%E5%8C%88%E7%89%99%E5%88%A9%E7%AE%97%E6%B3%95/">https://kaining667.github.io/2025/05/16/%E4%BA%8C%E5%88%86%E5%9B%BE%E5%8C%B9%E9%85%8D-%E5%8C%88%E7%89%99%E5%88%A9%E7%AE%97%E6%B3%95/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://kaining667.github.io" target="_blank">ChiefNing's blogs</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E7%AE%97%E6%B3%95/">算法</a><a class="post-meta__tags" href="/tags/%E5%9B%BE%E8%AE%BA/">图论</a></div><div class="post-share"><div class="social-share" data-image="/img/head.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2025/05/16/%E6%BB%9A%E6%A6%9C%E6%95%99%E7%A8%8B/" title="ACM相关比赛滚榜教程"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">ACM相关比赛滚榜教程</div></div><div class="info-2"><div class="info-item-1">PTA 滚榜使用说明1. 前言为了更好的服务于学生，补全华北水利水电大学在算法竞赛方面的一些不足的地方，本人 （ChiefNing ）在网上学习如何将 pta 结合于 resolver （ICPC 官方滚榜工具）。由于无法把 pta 上的比赛 部署至 Domjudge （官方滚榜工具所配合的测评平台），因此在配置奖项的时候无法使用套接字进行数 据导入，只能使用 xml 文件来进行滚榜文件的配置。则需要对赛时的 “提交记录 ”进行处理分析，但是 pta 官方并未给出导出 “提交记录 ”的模块，因此需要第三方工具进行对网页数据的爬取，在这里我推荐使用 浙江大学开发的一款爬虫软件 EasySpider ，该软件上手简单，爬取数据也比较方便，下面会详细介绍该 软件。  2. 对于数据的爬取上面我们提到，需要 EasySpider 进行对数据的爬取，该软件可以在 github 上找到，也可也从本目录中 找到（但是不是最新的，可能存在一系列 bug ，在下面我会详细说明其中一个影响比较大的 bug 的处理 方法，先说一下配置一个爬虫项目的步骤。 点击 EasySpider.exe ，进入软件...</div></div></div></a><a class="pagination-related" href="/2025/05/12/Dijkstra/" title="Dijkstra算法，分层图最短路"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">Dijkstra算法，分层图最短路</div></div><div class="info-2"><div class="info-item-1">给定一个源点，求解源点到每个点的最短路径长度，单源最短路径算法 适用范围：有向图，边的权值没有负数普通堆实现的Dijkstra算法（最普遍，最常用）:普通堆实现的Dijkstra算法，时间复杂度0(m*log m)，m为边数 1.distance[i]表示从源点到i点的最短距离，visited[i]表示i节点是否从小根堆弹出过。 2.准备好小根堆，小根堆存放记录:(x点，源点到x的距离)，小根堆根据距离组织 3.令distance[源点]&#x3D;0，(源点，0)进入小根堆 4.从小根堆弹出(u点，源点到u的距离)    a.如果visited[u]&#x3D;&#x3D;true，不做任何处理，重复步骤4 ​	b.如果visited[u]&#x3D;&#x3D; false，令visited[u]&#x3D;true，u就算弹出过了然后考察u的每一条边，假设某边去往V，边权为w​	1)如果visited[v]&#x3D;&#x3D;false 并且 distance[u]+ w&lt; distance[v令distance[v&#x3D; distance[u]+w,把(v...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2025/05/12/Dijkstra/" title="Dijkstra算法，分层图最短路"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-05-12</div><div class="info-item-2">Dijkstra算法，分层图最短路</div></div><div class="info-2"><div class="info-item-1">给定一个源点，求解源点到每个点的最短路径长度，单源最短路径算法 适用范围：有向图，边的权值没有负数普通堆实现的Dijkstra算法（最普遍，最常用）:普通堆实现的Dijkstra算法，时间复杂度0(m*log m)，m为边数 1.distance[i]表示从源点到i点的最短距离，visited[i]表示i节点是否从小根堆弹出过。 2.准备好小根堆，小根堆存放记录:(x点，源点到x的距离)，小根堆根据距离组织 3.令distance[源点]&#x3D;0，(源点，0)进入小根堆 4.从小根堆弹出(u点，源点到u的距离)    a.如果visited[u]&#x3D;&#x3D;true，不做任何处理，重复步骤4 ​	b.如果visited[u]&#x3D;&#x3D; false，令visited[u]&#x3D;true，u就算弹出过了然后考察u的每一条边，假设某边去往V，边权为w​	1)如果visited[v]&#x3D;&#x3D;false 并且 distance[u]+ w&lt; distance[v令distance[v&#x3D; distance[u]+w,把(v...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/friend_404.gif" data-original="/img/head.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">ChiefNing</div><div class="author-info-description">月落乌啼江南</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">3</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/kaining667" target="_blank" title="Github"><i class="fab fa-github"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">📢 公告内容：
+更新了个人简介</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E5%88%86%E5%9B%BE%E6%9C%80%E5%A4%A7%E5%8C%B9%E9%85%8D-%E5%8C%88%E7%89%99%E5%88%A9%E7%AE%97%E6%B3%95"><span class="toc-number">1.</span> <span class="toc-text">二分图最大匹配-匈牙利算法</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/05/16/%E6%BB%9A%E6%A6%9C%E6%95%99%E7%A8%8B/" title="ACM相关比赛滚榜教程">ACM相关比赛滚榜教程</a><time datetime="2025-05-16T14:22:21.085Z" title="发表于 2025-05-16 22:22:21">2025-05-16</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/05/16/%E4%BA%8C%E5%88%86%E5%9B%BE%E5%8C%B9%E9%85%8D-%E5%8C%88%E7%89%99%E5%88%A9%E7%AE%97%E6%B3%95/" title="匈牙利算法-二分图最大匹配">匈牙利算法-二分图最大匹配</a><time datetime="2025-05-16T14:15:27.418Z" title="发表于 2025-05-16 22:15:27">2025-05-16</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/05/12/Dijkstra/" title="Dijkstra算法，分层图最短路">Dijkstra算法，分层图最短路</a><time datetime="2025-05-12T07:29:38.649Z" title="发表于 2025-05-12 15:29:38">2025-05-12</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;2025 By ChiefNing</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.4.0-b2</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div>
+        <style>
+            [bg-lazy] {
+                background-image: none !important;
+                background-color: #eee !important;
+            }
+        </style>
+        <script>
+            window.imageLazyLoadSetting = {
+                isSPA: false,
+                preloadRatio: 1,
+                processImages: null,
+            };
+        </script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z\d\-\.\+]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(t.test(e.href)||r.test(e.href))&&(e.href=a.dataset.original)})});</script><script>(r=>{r.imageLazyLoadSetting.processImages=t;var a=r.imageLazyLoadSetting.isSPA,o=r.imageLazyLoadSetting.preloadRatio||1,d=i();function i(){var t=Array.prototype.slice.call(document.querySelectorAll("img[data-original]")),e=Array.prototype.slice.call(document.querySelectorAll("[bg-lazy]"));return t.concat(e)}function t(t){(a||t)&&(d=i());for(var e,n=0;n<d.length;n++)0<=(e=(e=d[n]).getBoundingClientRect()).bottom&&0<=e.left&&e.top<=(r.innerHeight*o||document.documentElement.clientHeight*o)&&(()=>{var t,e,a,o,i=d[n];e=function(){d=d.filter(function(t){return i!==t}),r.imageLazyLoadSetting.onImageLoaded&&r.imageLazyLoadSetting.onImageLoaded(i)},(t=i).dataset.loaded||(t.hasAttribute("bg-lazy")?(t.removeAttribute("bg-lazy"),e&&e()):(a=new Image,o=t.getAttribute("data-original"),a.onload=function(){t.src=o,t.removeAttribute("data-original"),t.setAttribute("data-loaded",!0),e&&e()},a.onerror=function(){t.removeAttribute("data-original"),t.setAttribute("data-loaded",!1),t.src=o},t.src!==o&&(a.src=o)))})()}function e(){clearTimeout(t.tId),t.tId=setTimeout(t,500)}t(),document.addEventListener("scroll",e),r.addEventListener("resize",e),r.addEventListener("orientationchange",e)})(this);</script></body></html>
